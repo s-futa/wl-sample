@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ステップバイステップフォーム</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      margin: 0;
+      background-color: #f9f9f9;
+    }
+
+    .form-container {
+      background: #ffffff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .form-step {
+      display: none;
+    }
+
+    .form-step.active {
+      display: block;
+    }
+
+    .form-step p {
+      margin-bottom: 10px;
+    }
+
+    .form-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+    }
+
+    button {
+      background-color: #007BFF;
+      color: #ffffff;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    button:disabled {
+      background-color: #cccccc;
+      cursor: not-allowed;
+    }
+
+    button:hover:not(:disabled) {
+      background-color: #0056b3;
+    }
+
+    .summary {
+      display: none;
+    }
+
+    .summary.active {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="form-container">
+    <form id="stepForm">
+
+      <div class="form-step active" data-step="1" data-next="2">
+        <h3>メールアドレスを入力してください:</h3>
+        <input type="email" name="メールアドレス" required>
+      </div>
+
+      <div class="form-step" data-step="2" data-next="3">
+        <h3>あなたの会社を選んでください:</h3>
+        <select name="会社名" required>
+          <option value="">選択してください</option>
+          <option value="掃除屋ジャンボ">掃除屋ジャンボ</option>
+          <option value="UGサポート">UGサポート</option>
+          <option value="クリーンサポートsponge">クリーンサポートsponge</option>
+          <option value="clean keeper Le-rere">clean keeper Le-rere</option>
+        </select>
+      </div>
+
+      <div class="form-step" data-step="3" data-next="4">
+        <h3>本日何件目の案件ですか？:</h3>
+        <input type="number" name="何件目" min="1" required>
+      </div>
+
+      <div class="form-step" data-step="4" data-next="5">
+        <h3>受注期間を指定してください:</h3>
+        <p>※1時間~48時間(二日間)まで調整可能<br>例）1/5 19字まで</p>
+        <input type="text" name="受注期間" required>
+      </div>
+
+      <div class="form-step" data-step="5" data-next="6">
+        <h3>発注スタイルを指定してください:</h3>
+        <label><input type="radio" name="発注スタイル" value="同行なしの外注依頼（募集）" data-next="6-1" required>
+          同行なしの外注依頼（募集）</label><br>
+        <label><input type="radio" name="発注スタイル" value="同行ありのオープンコール制（募集）" data-next="6-2" required>
+          同行ありのオープンコール制（募集）</label><br>
+        <label><input type="radio" name="発注スタイル" value="同行ありのドラフト制（指名）" data-next="6-3" required>
+          同行ありのドラフト制（指名）</label>
+      </div>
+
+      <div class="form-step" data-step="6-1" data-next="7">
+        <h3>金額の提示をしてください:</h3>
+        <p>※金額が決まっていない場合はこのフォームを使わずに見積り依頼を個別にしてください。</p>
+        <input type="text" name="金額" required>
+      </div>
+
+      <div class="form-step" data-step="6-2" data-next="7">
+        <h3>募集したいクラスと金額（税抜き）と人数を提示してください:</h3>
+        <p>例）シルバー以上＠12000円で2名<br>
+          例）ブロンズ以上＠11000円で4名</p>
+        <input type="text" name="クラスと金額（税抜き）と人数" required>
+      </div>
+
+      <div class="form-step" data-step="6-3" data-next="7">
+        <h3>依頼書を作成後に
+          単価表で発注金額確認してから、依頼したいスタッフが所属する各会社の担当者へ依頼をしてください。:</h3>
+        <input type="text" name="要調整" required>
+      </div>
+
+      <div class="form-step" data-step="7" data-next="summary">
+        <h3>受注状況を教えてください:</h3>
+        <label><input type="radio" name="受注状況" value="依頼日時ともに確定済み" required>
+          依頼日時ともに確定済み</label><br>
+        <label><input type="radio" name="受注状況" value="依頼は確定済み" required>
+          依頼は確定済み</label><br>
+        <label><input type="radio" name="受注状況" value="見積もり段階" required>
+          見積もり段階</label>
+        <label><input type="radio" name="受注状況" value="上記以外" required>
+          上記以外</label>
+      </div>
+
+      <div class="form-buttons">
+        <button type="button" id="prevBtn" disabled>戻る</button>
+        <button type="button" id="nextBtn">進む</button>
+      </div>
+
+      <div class="summary">
+        <h3>入力内容確認</h3>
+        <div id="summaryContent"></div>
+        <button type="submit">送信</button>
+      </div>
+    </form>
+  </div>
+
+  <script>
+    const steps = document.querySelectorAll('.form-step');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const form = document.getElementById('stepForm');
+    const summary = document.querySelector('.summary');
+    const summaryContent = document.getElementById('summaryContent');
+    let currentStep = "1";
+    const historyStack = [];
+
+    function updateStep() {
+      steps.forEach(step => {
+        step.classList.toggle('active', step.getAttribute('data-step') === currentStep);
+      });
+      prevBtn.disabled = historyStack.length === 0;
+      validateStep();
+    }
+
+    function validateStep() {
+      const activeStep = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+      const inputs = activeStep.querySelectorAll('input, textarea, select');
+      let isValid = true;
+
+      inputs.forEach(input => {
+        if (input.type === 'radio') {
+          const radioGroup = activeStep.querySelectorAll(`input[name="${input.name}"]`);
+          const isChecked = Array.from(radioGroup).some(radio => radio.checked);
+          if (!isChecked) isValid = false;
+        } else if (input.type === 'checkbox') {
+          const checkboxes = activeStep.querySelectorAll(`input[name="${input.name}"]`);
+          const isChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+          if (!isChecked) isValid = false;
+        } else if (input.required && !input.value.trim()) {
+          isValid = false;
+        }
+      });
+
+      nextBtn.disabled = !isValid;
+    }
+
+    nextBtn.addEventListener('click', () => {
+      const activeStep = document.querySelector(`.form-step[data-step="${currentStep}"]`);
+      const nextStep = activeStep.querySelector('input:checked')?.dataset.next || activeStep.getAttribute('data-next');
+
+      if (nextStep === "summary") {
+        const formData = new FormData(form);
+        summaryContent.innerHTML = '';
+        const visitedSteps = new Set(historyStack);
+        visitedSteps.add(currentStep);
+
+        for (const [key, value] of formData.entries()) {
+          const inputElement = form.querySelector(`[name="${key}"]`);
+          const stepElement = inputElement.closest('.form-step');
+
+          if (stepElement && visitedSteps.has(stepElement.getAttribute('data-step'))) {
+            summaryContent.innerHTML += `<p><strong>${key}:</strong> ${value}</p>`;
+          }
+        }
+        steps.forEach(step => step.classList.remove('active'));
+        summary.classList.add('active');
+      } else if (nextStep) {
+        historyStack.push(currentStep);
+        currentStep = nextStep;
+        updateStep();
+      }
+    });
+
+
+    prevBtn.addEventListener('click', () => {
+      if (summary.classList.contains('active')) {
+        summary.classList.remove('active');
+        currentStep = historyStack.pop();
+        updateStep();
+      } else if (historyStack.length > 0) {
+        currentStep = historyStack.pop();
+        updateStep();
+      }
+    });
+
+    form.addEventListener('input', validateStep);
+    form.addEventListener('change', validateStep);
+
+    updateStep();
+
+  </script>
+</body>
+
+</html>
